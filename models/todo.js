@@ -7,11 +7,11 @@ const todoSchema = new Schema(
       type: String,
       required: true,
     },
-    user: {
-        type: Mongoose.Types.ObjectId,
-        ref: "User",
-        required: true
-    }
+    userId: {
+      type: Schema.Types.ObjectID,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,

@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/user");
 const todoController = require("../controllers/todo");
 
 /* 
@@ -18,5 +17,13 @@ Return Single Todo for a user
 */
 
 router.get("/:id", todoController.getATodo);
+
+/* 
+HTTP POST Request
+Endpoint /todo
+Return Single Todo for a user
+*/
+
+router.post("/", todoController.createTodo);
 
 module.exports = router;
