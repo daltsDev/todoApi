@@ -1,3 +1,4 @@
 node_modules
 .vscode
 mongo-database/
+.DS_Store
