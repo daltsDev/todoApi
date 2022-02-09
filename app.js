@@ -14,11 +14,10 @@ app.use(express.json());
 // app.use('/auth', authRoutes)
 app.use("/todo", todoRoutes);
 
-db.connect()
-  .then(() => {
-    app.listen(8080, () => {
-      console.log("Running...");
-    });
+mongoose
+  .connect(MONGODB_URI)
+  .then((result) => {
+    app.listen(3000);
   })
   .catch((err) => {
     console.log(err);
