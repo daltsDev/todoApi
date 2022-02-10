@@ -2,43 +2,47 @@ const mongoose = require("mongoose");
 const Todo = require("../models/todo");
 const User = require("../models/user");
 
+const PROJECTION = { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 };
+
 exports.getTodo = async (req, res, next) => {
   const userId = req.user._id;
 
-  const todoList = await Todo.find({ userId: userId }, { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 });
+  const todoList = await Todo.find({ userId: userId }, PROJECTION);
 
-  res.send([...todoList]);
+  res.send(todoList);
 };
 
-exports.getATodo = (req, res, next) => {
+exports.getATodo = async (req, res, next) => {
   const { id } = req.params;
-  res.send({ todo: `Congrats you got your todo with Id:${id}` });
+  const userId = req.user._id;
+
+  const todo = await Todo.findOne({ _id: id, userId: userId }, PROJECTION);
+  res.json(todo);
 };
 
-exports.createTodo = (req, res, next) => {
+exports.createTodo = async (req, res, next) => {
+  // Get incoming request data
   const userId = req.user._id;
   const todoContent = req.body.todo;
-  let todoId;
 
+  // Create a new Mongoose Todo model
   const todo = new Todo({
     todo: todoContent,
     userId: userId,
   });
 
-  todo
-    .save()
-    .then((todo) => {
-      todoId = todo._id;
-      return User.findById(todo.userId);
-    })
-    .then((user, todo) => {
-      user.todo.push(todoId);
-      return user.save();
-    })
-    .then(() => {
-      res.send({ todo: todoContent, id: todoId });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  // Save the Response in the database and retreive back the entire todo object
+  const todoResponse = await todo.save();
+
+  // Find and return the request user object in the database
+  const reqUser = await User.findById(todo.userId);
+
+  // Push new TODO _id in to User Todo array
+  reqUser.todo.push(todoResponse._id);
+
+  // Save user to to the database
+  await reqUser.save();
+
+  // Send the user back a response with the newly created Todo and _id
+  res.json({ todo: todoResponse.todo, id: todoResponse._id });
 };
