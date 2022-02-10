@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 require("dotenv").config();
 const User = require("./models/user");
+const pretty = require("express-prettify");
 
 const authRoutes = require("./routes/auth");
 const todoRoutes = require("./routes/todo");
@@ -14,6 +15,9 @@ const app = express();
 
 // Enable Express App to parse incoming JSON
 app.use(express.json());
+
+// Enabled JSON response prettify
+app.use(pretty({ query: "pretty" }));
 
 // DEV ONLY manually assinging user to single user for all requests
 app.use((req, res, next) => {

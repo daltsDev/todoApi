@@ -14,14 +14,14 @@ exports.getTodos = async (req, res, next) => {
 };
 
 exports.getTodo = async (req, res, next) => {
-  // Validation Error Hanlding
+  // Validation Error Handling
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed. Entered Incorrect Value");
     error.statusCode = 422;
     error.data = errors.array();
-    next(error);
+    return next(error);
   }
 
   try {
@@ -55,91 +55,152 @@ exports.getTodo = async (req, res, next) => {
 };
 
 exports.createTodo = async (req, res, next) => {
-  // Get incoming request data
-  const userId = req.user._id;
-  const todoContent = req.body.todo;
+  // Validation Error Handling
+  const errors = validationResult(req);
 
-  // Create a new Mongoose Todo model
-  const todo = new Todo({
-    todo: todoContent,
-    userId: userId,
-  });
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation Failed. Entered Incorrect Value");
+    error.statusCode = 422;
+    error.data = errors.array();
+    return next(error);
+  }
+  try {
+    // Get incoming request data
+    const userId = req.user._id;
+    const todoContent = req.body.todo;
 
-  // Save the Response in the database and retreive back the entire todo object
-  const todoResponse = await todo.save();
+    // Create a new Mongoose Todo model
+    const todo = new Todo({
+      todo: todoContent,
+      userId: userId,
+    });
 
-  // Find and return the request user object in the database
-  const reqUser = await User.findById(todo.userId);
+    // Save the Response in the database and retrieve back the entire todo object
+    const todoResponse = await todo.save();
 
-  // Push new TODO _id in to User Todo array
-  reqUser.todos.push(todoResponse._id);
+    // Find and return the request user object in the database
+    const reqUser = await User.findById(todo.userId);
 
-  // Save user to the database
-  await reqUser.save();
+    // Push new TODO _id in to User Todo array
+    reqUser.todos.push(todoResponse._id);
 
-  // Send the user back a response with the newly created Todo and _id
-  res.json({ todo: todoResponse.todo, id: todoResponse._id });
+    // Save user to the database
+    await reqUser.save();
+
+    // Send the user back a response with the newly created Todo and _id
+    res.json({ todo: todoResponse.todo, id: todoResponse._id });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode === 500;
+    }
+    next(error);
+  }
 };
 
 exports.editTodo = async (req, res, next) => {
-  // Get incoming request data | ID of Todo to be modified | ID of the incoming User | new Todo Content
-  const todoId = req.params.id;
-  const userId = req.user._id;
-  const todoContent = req.body.todo;
+  // Validation Error Handling
+  const errors = validationResult(req);
 
-  // Find Todo
-  const todo = await Todo.findById({ _id: todoId });
-  console.log(todo);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation Failed. Entered Incorrect Value");
+    error.statusCode = 422;
+    error.data = errors.array();
+    return next(error);
+  }
 
-  // Check if todo exists
-  if (!todo) return res.status(404).json({ message: `No todo found with id ${todoId}` });
+  try {
+    // Get incoming request data | ID of Todo to be modified | ID of the incoming User | new Todo Content
+    const todoId = req.params.id;
+    const userId = req.user._id;
+    const todoContent = req.body.todo;
 
-  // Check if todo creator matches todo userId
-  if (todo.userId.toString() !== userId.toString()) return res.status(401).json({ message: `Unauthorized` });
+    // Find Todo
+    const todo = await Todo.findById({ _id: todoId });
 
-  // Update todo
-  todo.todo = todoContent;
+    // Check if todo exists
+    if (!todo) {
+      const error = new Error(`No todo found with ID ${todoId}. Please check ID.`);
+      error.statusCode = 404;
+      throw error;
+    }
 
-  // Save Todo To Database
-  await todo.save({ timestamps: true });
+    // Check if user is owner of todo
+    if (todo.userId.toString() !== userId.toString()) {
+      const error = new Error("You do not have permissions to modify this todo");
+      error.statusCode = 403;
+      throw error;
+    }
+    // Update todo
+    todo.todo = todoContent;
 
-  // Return new todo
-  res.status(200).json({ _id: todo._id, todo: todo.todo });
+    // Save Todo To Database
+    await todo.save({ timestamps: true });
 
-  //later | Check if todo exists check if owner of todo is the same as req user
+    // Return new todo
+    res.status(200).json({ _id: todo._id, todo: todo.todo });
+
+    //later | Check if todo exists check if owner of todo is the same as req user
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode === 500;
+    }
+    next(error);
+  }
 };
 
 exports.deleteTodo = async (req, res, next) => {
-  // Get incoming request data | ID of Todo to be modified | ID of the incoming User
-  const todoId = req.params.id;
-  const userId = req.user._id;
+  // Validation Error Handling
+  const errors = validationResult(req);
 
-  // Find Todo
-  const todo = await Todo.findById({ _id: todoId });
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation Failed. Entered Incorrect Value");
+    error.statusCode = 422;
+    error.data = errors.array();
+    return next(error);
+  }
 
-  // Check if todo exists
-  if (!todo) return res.status(404).json({ message: `No todo found with id ${todoId}` });
+  try {
+    // Get incoming request data | ID of Todo to be modified | ID of the incoming User
+    const todoId = req.params.id;
+    const userId = req.user._id;
 
-  // Check if todo creator matches todo userId
-  if (todo.userId.toString() !== userId.toString()) return res.status(401).json({ message: `Unauthorized` });
+    // Find Todo
+    const todo = await Todo.findById({ _id: todoId });
 
-  // Find User in Database
-  const user = await User.findById({ _id: userId });
+    // Check if todo exists
+    if (!todo) {
+      const error = new Error(`No todo found with ID ${todoId}. Please check ID.`);
+      error.statusCode = 404;
+      throw error;
+    }
 
-  // Create new Todo Array Excluding deleted Todo
-  const updatedTodoArray = user.todos.filter((todo) => todo.toString() !== todoId.toString());
+    // Check if user is owner of todo
+    if (todo.userId.toString() !== userId.toString()) {
+      const error = new Error("You do not have permissions to delete this todo");
+      error.statusCode = 403;
+      throw error;
+    }
 
-  // Set User Todo Array to new array excluding deleted array
-  user.todos = updatedTodoArray;
+    // Delete Todo After Checks
+    await Todo.deleteOne({ _id: todoId });
 
-  // Save User
-  await user.save({ timestamps: true });
+    // Find User in Database
+    const user = await User.findById({ _id: userId });
 
-  // Delete Todo After Checks
-  await Todo.deleteOne({ _id: todoId });
+    // Remove Todo Id from user Todos
+    user.todos.pull(todo._id);
 
-  // Return Deletion Confirmation
-  res.status(200).json({ message: "Successfully Deleted Todo" });
+    // Save User
+    await user.save({ timestamps: true });
 
-  //later | Check if todo exists check if owner of todo is the same as req user
+    // Return Deletion Confirmation
+    res.status(200).json({ message: "Successfully Deleted Todo" });
+
+    //later | Check if todo exists check if owner of todo is the same as req user
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode === 500;
+    }
+    next(error);
+  }
 };

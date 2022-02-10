@@ -18,7 +18,7 @@ Endpoint /todo/:id
 Return Single Todo for a user
 */
 
-router.get("/:id", param("id").not().isEmpty().trim().isMongoId().withMessage("Invalid ID, must be a string of 12 bytes or a string of 24 hex characters"), todoController.getTodo);
+router.get("/:id", [param("id").not().isEmpty().trim().isMongoId().withMessage("Invalid ID, must be a string of 12 bytes or a string of 24 hex characters")], todoController.getTodo);
 
 /* 
 HTTP PATCH Request
@@ -26,14 +26,15 @@ Endpoint /todo/:id
 Modify an existing Todo and return Todo for the user
 */
 
-router.patch("/:id", todoController.editTodo);
+router.patch("/:id", [param("id").not().isEmpty().trim().isMongoId().withMessage("Invalid ID, must be a string of 12 bytes or a string of 24 hex characters"), body("todo").not().isEmpty().isLength({ min: 5 }).withMessage("Todo must be minimum 5 characters long")], todoController.editTodo);
+
 /* 
 HTTP POST Request
 Endpoint /todo
 Create a new Todo and return Todo for the user
 */
 
-router.post("/", todoController.createTodo);
+router.post("/", [body("todo").not().isEmpty().isLength({ min: 5 }).withMessage("Todo must be minimum 5 characters long")], todoController.createTodo);
 
 /* 
 HTTP DELETE Request
@@ -41,6 +42,6 @@ Endpoint /todo/:id
 Deletes an existing Todo
 */
 
-router.delete("/:id", todoController.deleteTodo);
+router.delete("/:id", [param("id").not().isEmpty().trim().isMongoId().withMessage("Invalid ID, must be a string of 12 bytes or a string of 24 hex characters")], todoController.deleteTodo);
 
 module.exports = router;
