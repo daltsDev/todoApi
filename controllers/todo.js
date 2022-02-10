@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const { validationResult } = require("express-validator");
 const Todo = require("../models/todo");
 const User = require("../models/user");
 
 const PROJECTION = { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 };
 
-exports.getTodo = async (req, res, next) => {
+exports.getTodos = async (req, res, next) => {
   const userId = req.user._id;
 
   const todoList = await Todo.find({ userId: userId }, PROJECTION);
@@ -12,12 +13,45 @@ exports.getTodo = async (req, res, next) => {
   res.send(todoList);
 };
 
-exports.getATodo = async (req, res, next) => {
-  const { id } = req.params;
-  const userId = req.user._id;
+exports.getTodo = async (req, res, next) => {
+  // Validation Error Hanlding
+  const errors = validationResult(req);
 
-  const todo = await Todo.findOne({ _id: id, userId: userId }, PROJECTION);
-  res.json(todo);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation Failed. Entered Incorrect Value");
+    error.statusCode = 422;
+    error.data = errors.array();
+    next(error);
+  }
+
+  try {
+    // Get Request Parameters
+    const { id } = req.params;
+    const userId = req.user._id;
+    // Find Todo
+    const todo = await Todo.findOne({ _id: id });
+
+    // Check if todo exists
+    if (!todo) {
+      const error = new Error(`No todo found with ID ${id}. Please check ID.`);
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Check if user is owner of todo
+    if (todo.userId.toString() !== userId.toString()) {
+      const error = new Error("You do not have permissions to view this todo");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    res.status(200).json({ _id: todo._id, todo: todo.todo });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode === 500;
+    }
+    next(error);
+  }
 };
 
 exports.createTodo = async (req, res, next) => {
