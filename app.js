@@ -19,18 +19,6 @@ app.use(express.json());
 // Enabled JSON response prettify
 app.use(pretty({ query: "pretty" }));
 
-// DEV ONLY manually assinging user to single user for all requests
-app.use((req, res, next) => {
-  User.findById("62043534e418cb44305723de")
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
 // Adding Config for CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -40,7 +28,7 @@ app.use((req, res, next) => {
 });
 
 // ROUTES
-// app.use('/auth', authRoutes)
+app.use("/auth", authRoutes);
 app.use("/todo", todoRoutes);
 
 // Global APP ERROR HANDLER
@@ -57,22 +45,14 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(DATABASE_URI)
   .then((result) => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          email: "daltsdev@icloud.com",
-          password: "password",
-          todo: [],
-        });
-        user.save();
-      }
-    });
     app.listen(PORT || 8080);
     console.log("Connected to Database & App Running");
   })
   .catch((err) => {
     console.log(err);
   });
+
+// Handle Shutting down of the application
 
 process.on("SIGTERM", async () => {
   console.log("SHUTTING ME DOWN FORCEFULLY");

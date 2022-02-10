@@ -15,8 +15,10 @@
   "author": "Stephen Dalton",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.17.2",
     "express-validator": "^6.14.0",
+    "jsonwebtoken": "^8.5.1",
     "mongodb-memory-server": "^8.2.0",
     "mongoose": "^6.2.0"
   },

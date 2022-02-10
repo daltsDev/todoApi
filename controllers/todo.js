@@ -6,7 +6,7 @@ const User = require("../models/user");
 const PROJECTION = { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 };
 
 exports.getTodos = async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.userId;
 
   const todoList = await Todo.find({ userId: userId }, PROJECTION);
 
@@ -27,7 +27,7 @@ exports.getTodo = async (req, res, next) => {
   try {
     // Get Request Parameters
     const { id } = req.params;
-    const userId = req.user._id;
+    const userId = req.userId;
     // Find Todo
     const todo = await Todo.findOne({ _id: id });
 
@@ -66,7 +66,7 @@ exports.createTodo = async (req, res, next) => {
   }
   try {
     // Get incoming request data
-    const userId = req.user._id;
+    const userId = req.userId;
     const todoContent = req.body.todo;
 
     // Create a new Mongoose Todo model
@@ -111,7 +111,7 @@ exports.editTodo = async (req, res, next) => {
   try {
     // Get incoming request data | ID of Todo to be modified | ID of the incoming User | new Todo Content
     const todoId = req.params.id;
-    const userId = req.user._id;
+    const userId = req.userId;
     const todoContent = req.body.todo;
 
     // Find Todo
@@ -162,7 +162,7 @@ exports.deleteTodo = async (req, res, next) => {
   try {
     // Get incoming request data | ID of Todo to be modified | ID of the incoming User
     const todoId = req.params.id;
-    const userId = req.user._id;
+    const userId = req.userId;
 
     // Find Todo
     const todo = await Todo.findById({ _id: todoId });
