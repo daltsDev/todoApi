@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "dotenv": "^16.0.0",
-    "nodemon": "^2.0.15",
-    "ps-node": "^0.1.6"
+    "nodemon": "^2.0.15"
   }
 }

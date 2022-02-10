@@ -21,9 +21,25 @@ router.get("/:id", todoController.getATodo);
 /* 
 HTTP POST Request
 Endpoint /todo
-Return Single Todo for a user
+Create a new Todo and return Todo for the user
 */
 
 router.post("/", todoController.createTodo);
+
+/* 
+HTTP PATCH Request
+Endpoint /todo/:id
+Modify an existing Todo and return Todo for the user
+*/
+
+router.patch("/:id", todoController.editTodo);
+
+/* 
+HTTP DELETE Request
+Endpoint /todo/:id
+Deletes an existing Todo
+*/
+
+router.delete("/:id", todoController.deleteTodo);
 
 module.exports = router;

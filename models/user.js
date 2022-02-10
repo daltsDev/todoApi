@@ -11,7 +11,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    todo: [
+    todos: [
       {
         type: Schema.Types.ObjectID,
         ref: "Todo",
