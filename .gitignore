@@ -1,5 +1,5 @@
 node_modules
 .vscode
-config/.env.*
+config/
 mongo-database/
 .DS_Store
