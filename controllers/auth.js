@@ -84,3 +84,18 @@ exports.login = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.user = async (req, res, next) => {
+  const { userId } = req;
+
+  const user = await User.findOne({ userId });
+
+  // Check if user exists
+  if (!user) {
+    const error = new Error(`Could not find user with that email`);
+    error.statusCode = 404;
+    throw error;
+  }
+
+  res.status(200).json({ loggedInAs: user.email });
+};
