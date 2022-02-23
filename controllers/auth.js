@@ -70,6 +70,10 @@ exports.login = async (req, res, next) => {
     if (isCorrectPassword) {
       // Create jwt
       const token = jwt.sign({ userId: userToLogin._id }, JWT_SECRET_TOKEN, { expiresIn: "7 days" });
+
+      userToLogin.token = token;
+      await userToLogin.save();
+
       // Return jwt
       res.status(200).json({ accessToken: token });
     } else {

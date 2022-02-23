@@ -17,6 +17,10 @@ const userSchema = new Schema(
         ref: "Todo",
       },
     ],
+    token: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
