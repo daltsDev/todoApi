@@ -4,7 +4,7 @@
   "description": "A REST API for a TODO Application",
   "main": "app.js",
   "scripts": {
-    "dev": "env-cmd -f config/.env.dev nodemon app.js",
+    "dev": "env-cmd -f config/.env.dev nodemon ./src/app.js",
     "test": "env-cmd -f config/.env.test jest --watchAll --runInBand --detectOpenHandles"
   },
   "jest": {

@@ -2,11 +2,11 @@
  Tests for Node Todo API.
 */
 const request = require("supertest");
-const app = require("../init");
+const app = require("../src/init");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const Todo = require("../models/todo");
+const User = require("../src/models/user");
+const Todo = require("../src/models/todo");
 /*
  Test Users For Todo Endpoint Tests
 */
