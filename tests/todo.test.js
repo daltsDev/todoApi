@@ -25,6 +25,7 @@ const userOne = {
     }
   ),
 };
+
 const userTwoId = mongoose.Types.ObjectId();
 const userTwo = {
   _id: userTwoId,
@@ -40,18 +41,24 @@ const userTwo = {
     }
   ),
 };
-/*
-  Todo Authentication Tests
-*/
-describe("Todo Authentication", () => {
+
+/**
+ * Todo Authentication Tests
+ */
+
+describe("Create A User", () => {
   beforeEach(async () => {
     await User.deleteMany({});
-    await Todo.deleteMany({});
   });
-  test("Create New User", async () => {
+
+  test("does not exist", async () => {
+    /**
+     * Is it possible to create a new user account with
+     * an email address and password.
+     */
     expect.assertions(4);
     const resultFromSignup = await request(app).post("/auth/signup").send({
-      email: "emma@jane.com",
+      email: "user_does_not_exist@todo.com",
       password: "securePa55word",
     });
     expect(resultFromSignup.statusCode).toBe(201);
@@ -61,86 +68,32 @@ describe("Todo Authentication", () => {
       mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
     ).toBeTruthy();
   });
-  test("Login New User", async () => {
-    expect.assertions(6);
-    const resultFromSignup = await request(app).post("/auth/signup").send({
-      email: "emma@jane.com",
+
+  test("does exist", async () => {
+    /**
+     * A 409 response is returned when attempting to create
+     * an account with an email that already exists
+     */
+    expect.assertions(1);
+    await request(app).post("/auth/signup").send({
+      email: "user_does_not_exist@todo.com",
       password: "securePa55word",
     });
-    expect(resultFromSignup.statusCode).toBe(201);
-    expect(resultFromSignup._body.message).toBe("Successfully Signed Up");
-    expect(resultFromSignup._body).toHaveProperty("_id");
-    expect(
-      mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
-    ).toBeTruthy();
-    const resultFromLogin = await request(app).post("/auth/login").send({
-      email: "emma@jane.com",
-      password: "securePa55word",
-    });
-    expect(resultFromLogin._body.accessToken).toMatch(
-      /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+/=]*)/
-    ); // JWT REGEX
-    expect(resultFromLogin.status).toBe(200);
+    const resultFromSecondSignup = await request(app)
+      .post("/auth/signup")
+      .send({
+        email: "user_does_not_exist@todo.com",
+        password: "securePa55word",
+      });
+    expect(resultFromSecondSignup.statusCode).toBe(409);
   });
-  test("Return Current User", async () => {
-    const user = {
-      email: "emma@jane.com",
-      password: "securePa55word",
-    };
-    expect.assertions(9);
-    const resultFromSignup = await request(app).post("/auth/signup").send(user);
-    expect(resultFromSignup.statusCode).toBe(201);
-    expect(resultFromSignup._body.message).toBe("Successfully Signed Up");
-    expect(resultFromSignup._body).toHaveProperty("_id");
-    expect(
-      mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
-    ).toBeTruthy();
-    const resultFromLogin = await request(app).post("/auth/login").send(user);
-    expect(resultFromLogin._body.accessToken).toMatch(
-      /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+/=]*)/
-    ); // JWT REGEX
-    expect(resultFromLogin.status).toBe(200);
-    const resultFromUserCall = await request(app)
-      .get("/auth/user")
-      .set("Authorization", `Bearer ${resultFromLogin._body.accessToken}`);
-    expect(resultFromUserCall.statusCode).toBe(200);
-    expect(resultFromUserCall._body).toHaveProperty("loggedInAs");
-    expect(resultFromUserCall._body.loggedInAs).toMatch(user.email);
-  });
-  test("Error Unauthenticated User", async () => {
-    await request(app).get("/auth/user").expect(401);
-  });
-  test("Error Invalid Credentials", async () => {
-    expect.assertions(6);
-    const resultFromSignup = await request(app).post("/auth/signup").send({
-      email: "emma@jane.com",
-      password: "securePa55word",
-    });
-    expect(resultFromSignup.statusCode).toBe(201);
-    expect(resultFromSignup._body.message).toBe("Successfully Signed Up");
-    expect(resultFromSignup._body).toHaveProperty("_id");
-    expect(
-      mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
-    ).toBeTruthy();
-    const resultFromLogin = await request(app).post("/auth/login").send({
-      email: "emma@jane.com",
-      password: "Not5ecurePa55word",
-    });
-    expect(resultFromLogin._body.message).toBe("Incorrect Email or Password!");
-    expect(resultFromLogin.statusCode).toBe(401);
-  });
-  test("Error User Does Not Exist", async () => {
-    expect.assertions(2);
-    const resultFromLogin = await request(app).post("/auth/login").send({
-      email: "doesnotexist@test.com",
-      password: "securePa55word",
-    });
-    expect(resultFromLogin.statusCode).toBe(422);
-    expect(resultFromLogin._body.data[0].msg).toBe(
-      "Account Does Not Exist. Please Create An Account."
-    );
-  });
-  test("Error Invalid User Signup", async () => {
+
+  test("invalid email and password", async () => {
+    /**
+     * 422 response is returned when attempting to create an
+     * account with an invalid email and a password less than
+     * 5 characters long
+     */
     expect.assertions(4);
     const resultFromSignup = await request(app).post("/auth/signup").send({
       email: "test_invalid_email.test.com",
@@ -159,9 +112,121 @@ describe("Todo Authentication", () => {
   });
   afterAll(async () => {
     await User.deleteMany({});
-    await Todo.deleteMany({});
   });
 });
+
+describe("Login User", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
+
+  test("does exist", async () => {
+    /**
+     * Is it possible to login a user with an email address and password
+     * that has created an account. And, receive a JSON Web Token.
+     */
+    expect.assertions(6);
+    const resultFromSignup = await request(app).post("/auth/signup").send({
+      email: "emma@jane.com",
+      password: "securePa55word",
+    });
+    expect(resultFromSignup.statusCode).toBe(201);
+    expect(resultFromSignup._body.message).toBe("Successfully Signed Up");
+    expect(resultFromSignup._body).toHaveProperty("_id");
+    expect(
+      mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
+    ).toBeTruthy();
+    const resultFromLogin = await request(app).post("/auth/login").send({
+      email: "emma@jane.com",
+      password: "securePa55word",
+    });
+    expect(resultFromLogin._body.accessToken).toMatch(
+      // JWT REGEX
+      /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+/=]*)/
+    );
+    expect(resultFromLogin.status).toBe(200);
+  });
+
+  test("does not exist", async () => {
+    expect.assertions(2);
+    const resultFromLogin = await request(app).post("/auth/login").send({
+      email: "doesnotexist@test.com",
+      password: "securePa55word",
+    });
+    expect(resultFromLogin.statusCode).toBe(422);
+    expect(resultFromLogin._body.data[0].msg).toBe(
+      "Account Does Not Exist. Please Create An Account."
+    );
+  });
+
+  test("confirm user identity from jwt", async () => {
+    /**
+     * It is possible to retrieve the logged in user's email address
+     * with a JSON web token at the /guarded endpoint.
+     */
+    const user = {
+      email: "emma@jane.com",
+      password: "securePa55word",
+    };
+    expect.assertions(9);
+    const resultFromSignup = await request(app).post("/auth/signup").send(user);
+    expect(resultFromSignup.statusCode).toBe(201);
+    expect(resultFromSignup._body.message).toBe("Successfully Signed Up");
+    expect(resultFromSignup._body).toHaveProperty("_id");
+    expect(
+      mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
+    ).toBeTruthy();
+    const resultFromLogin = await request(app).post("/auth/login").send(user);
+    expect(resultFromLogin._body.accessToken).toMatch(
+      // JWT REGEX
+      /^([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-+/=]*)/
+    );
+    expect(resultFromLogin.status).toBe(200);
+    const resultFromUserCall = await request(app)
+      .get("/auth/guarded")
+      .set("Authorization", `Bearer ${resultFromLogin._body.accessToken}`);
+    expect(resultFromUserCall.statusCode).toBe(200);
+    expect(resultFromUserCall._body).toHaveProperty("loggedInAs");
+    expect(resultFromUserCall._body.loggedInAs).toMatch(user.email);
+  });
+
+  test("confirm user identity without jwt", async () => {
+    /**
+     * A 401 response is returned when attempting to retrieve
+     * current user without passing jwt.
+     */
+    await request(app).get("/auth/guarded").expect(401);
+  });
+
+  test("invalid credentials", async () => {
+    /**
+     * A 401 response is returned when logging in with incorrect
+     * password
+     */
+    expect.assertions(6);
+    const resultFromSignup = await request(app).post("/auth/signup").send({
+      email: "emma@jane.com",
+      password: "securePa55word",
+    });
+    expect(resultFromSignup.statusCode).toBe(201);
+    expect(resultFromSignup._body.message).toBe("Successfully Signed Up");
+    expect(resultFromSignup._body).toHaveProperty("_id");
+    expect(
+      mongoose.mongo.ObjectId.isValid(resultFromSignup._body._id)
+    ).toBeTruthy();
+    const resultFromLogin = await request(app).post("/auth/login").send({
+      email: "emma@jane.com",
+      password: "Not5ecurePa55word",
+    });
+    expect(resultFromLogin._body.message).toBe("Incorrect Email or Password!");
+    expect(resultFromLogin.statusCode).toBe(401);
+  });
+
+  afterAll(async () => {
+    await User.deleteMany({});
+  });
+});
+
 /*
   Todo Endpoint Tests
 */
@@ -171,7 +236,8 @@ describe("Create A Todo", () => {
     await new User(userOne).save();
     await Todo.deleteMany({});
   });
-  test("Create a Todo", async () => {
+
+  test("new todo", async () => {
     /*
      * It is possible to create a new Todo and return the ID for that todo.
      */
@@ -188,17 +254,20 @@ describe("Create A Todo", () => {
       mongoose.mongo.ObjectId.isValid(resultFromCreateTodo._body._id)
     ).toBeTruthy();
   });
+
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
   });
 }); // End of Describe Block
+
 describe("Get A Todo", () => {
   beforeEach(async () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
   });
+
   test("exists", async () => {
     /*
      * Is it possible to retrieve a single todo with a valid given ObjectId
@@ -218,6 +287,7 @@ describe("Get A Todo", () => {
       todo: "Create First Todo",
     }).toMatchObject(resultFromGetTodo._body);
   });
+
   test("does not exist", async () => {
     /*
      * A 404 error is returned when attempting to retrieve a todo
@@ -232,17 +302,20 @@ describe("Get A Todo", () => {
       `No todo found with ID ${todoIdDoesNotExist}. Please check ID.`
     );
   });
+
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
   });
 }); // End of Describe Block
+
 describe("Get All Todos", () => {
   beforeEach(async () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
   });
+
   test("todos exists", async () => {
     /*
      * It is possible to retrieve all todos for a user
@@ -277,6 +350,7 @@ describe("Get All Todos", () => {
       },
     ]).toEqual(expect.arrayContaining(resultFromGetAllTodos._body));
   });
+
   test("todos do not exist", async () => {
     /*
      * An empty array is returned for a user if no todo items exist
@@ -290,17 +364,20 @@ describe("Get All Todos", () => {
       expect.arrayContaining(resultFromGetAllTodos._body)
     );
   });
+
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
   });
 }); // End of Describe Block
+
 describe("Modify A Todo", () => {
   beforeEach(async () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
   });
+
   test("exists", async () => {
     /*
      * Is it possible to modify a todo with a valid given ObjectId
@@ -323,10 +400,7 @@ describe("Modify A Todo", () => {
       todo: "Modify First Todo",
     }).toMatchObject(resultsFromModifyTodo._body);
   });
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
-  });
+
   test("does not exist", async () => {
     /*
      * A 404 error is returned when attempting to modify a todo
@@ -342,11 +416,13 @@ describe("Modify A Todo", () => {
       `No todo found with ID ${todoIdDoesNotExist}. Please check ID.`
     );
   });
+
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
   });
 }); // End of Describe Block
+
 describe("Delete A Todo", () => {
   beforeEach(async () => {
     await User.deleteMany({});
@@ -371,6 +447,7 @@ describe("Delete A Todo", () => {
       "Successfully Deleted Todo"
     );
   });
+
   test("does not exist", async () => {
     /*
      * A 404 error is returned when attempting to delete a todo
@@ -385,11 +462,90 @@ describe("Delete A Todo", () => {
       `No todo found with ID ${todoIdDoesNotExist}. Please check ID.`
     );
   });
+
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
   });
 }); // End of Describe Block
+
+describe("Ownership of todos", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+    await new User(userOne).save();
+    await new User(userTwo).save();
+    await Todo.deleteMany({});
+  });
+
+  test("does not retrieve other user's todo", async () => {
+    /**
+     * A 403 response is returned when attempting to retrieve a todo
+     * that the user does not own.
+     */
+    const resultsFromCreateUserOneTodo = await request(app)
+      .post("/todo")
+      .set("Authorization", `Bearer ${userOne.token}`)
+      .send({
+        todo: "Create Test Todo",
+      });
+
+    const userOneTodoId = resultsFromCreateUserOneTodo._body._id;
+    const resultsFromGetUserOneTodoWithUserTwoCreds = await request(app)
+      .get(`/todo/${userOneTodoId}`)
+      .set("Authorization", `Bearer ${userTwo.token}`);
+
+    expect(resultsFromGetUserOneTodoWithUserTwoCreds.statusCode).toBe(403);
+  });
+
+  test("does not modify other user's todo", async () => {
+    /**
+     * A 403 response is returned when attempting to modify a todo
+     * that the user does not own.
+     */
+    const resultsFromCreateUserOneTodo = await request(app)
+      .post("/todo")
+      .set("Authorization", `Bearer ${userOne.token}`)
+      .send({
+        todo: "Create Test Todo",
+      });
+
+    const userOneTodoId = resultsFromCreateUserOneTodo._body._id;
+
+    const resultsFromGetUserOneTodoWithUserTwoCreds = await request(app)
+      .patch(`/todo/${userOneTodoId}`)
+      .set("Authorization", `Bearer ${userTwo.token}`)
+      .send({ todo: "Update User One Todo" });
+
+    expect(resultsFromGetUserOneTodoWithUserTwoCreds.statusCode).toBe(403);
+  });
+
+  test("does not delete other user's todo", async () => {
+    /**
+     * A 403 response is returned when attempting to delete a todo
+     * that the user does not own.
+     */
+    const resultsFromCreateUserOneTodo = await request(app)
+      .post("/todo")
+      .set("Authorization", `Bearer ${userOne.token}`)
+      .send({
+        todo: "Create Test Todo",
+      });
+
+    const userOneTodoId = resultsFromCreateUserOneTodo._body._id;
+
+    const resultsFromGetUserOneTodoWithUserTwoCreds = await request(app)
+      .delete(`/todo/${userOneTodoId}`)
+      .set("Authorization", `Bearer ${userTwo.token}`);
+
+    expect(resultsFromGetUserOneTodoWithUserTwoCreds.statusCode).toBe(403);
+  });
+
+  afterAll(async () => {
+    await User.deleteMany({});
+    await Todo.deleteMany({});
+  });
+}); // End of Describe Block
+
 afterAll(async () => {
   await mongoose.disconnect();
 });

@@ -11,10 +11,12 @@ exports.signUp = async (req, res, next) => {
   // Handle validation errors
   // Validation Error Handling
   const errors = validationResult(req);
-
+  console.log(errors);
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed. Entered Incorrect Value");
-    error.statusCode = 422;
+    req.statusCode === 409
+      ? (error.statusCode = 409)
+      : (error.statusCode = 422);
     error.data = errors.array();
     return next(error);
   }
@@ -38,7 +40,9 @@ exports.signUp = async (req, res, next) => {
     await newUser.save({ timestamps: true });
 
     // confirm user sign up.
-    res.status(201).json({ message: "Successfully Signed Up", _id: newUser._id });
+    res
+      .status(201)
+      .json({ message: "Successfully Signed Up", _id: newUser._id });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode === 500;
@@ -65,10 +69,15 @@ exports.login = async (req, res, next) => {
     // Compare password with stored password
     const userToLogin = await User.findOne({ email: email });
 
-    const isCorrectPassword = await bcrypt.compare(password, userToLogin.password);
+    const isCorrectPassword = await bcrypt.compare(
+      password,
+      userToLogin.password
+    );
     if (isCorrectPassword) {
       // Create jwt
-      const token = jwt.sign({ userId: userToLogin._id }, JWT_SECRET_TOKEN, { expiresIn: "7 days" });
+      const token = jwt.sign({ userId: userToLogin._id }, JWT_SECRET_TOKEN, {
+        expiresIn: "7 days",
+      });
 
       userToLogin.token = token;
       await userToLogin.save();

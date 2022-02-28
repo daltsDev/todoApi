@@ -17,7 +17,10 @@ app.use(express.json());
 // Adding Config for CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE"
+  );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
@@ -38,8 +41,8 @@ app.use((error, req, res, next) => {
 
 //DATABASE CONNECTION
 mongoose
-  .connect(DATABASE_URI)
-  .then((result) => {
+  .connect(DATABASE_URI, { maxPoolSize: 50 })
+  .then((_) => {
     console.log("Connected to Database");
   })
   .catch((err) => {

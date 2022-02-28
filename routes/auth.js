@@ -6,7 +6,7 @@ const authController = require("../controllers/auth");
 const isAuth = require("../middleware/isAuth");
 const User = require("../models/user");
 
-router.get("/user", isAuth, authController.user);
+router.get("/guarded", isAuth, authController.user);
 
 router.post(
   "/signup",
@@ -17,12 +17,16 @@ router.post(
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((user) => {
           if (user) {
-            return Promise.reject("Account Already Exists");
+            req.statusCode = 409;
+            return Promise.reject("Account Already Exists!");
           }
         });
       })
       .normalizeEmail(),
-    body("password").trim().isLength({ min: 5 }).withMessage("Password needs to be minimum 5 characters long"),
+    body("password")
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage("Password needs to be minimum 5 characters long"),
   ],
   authController.signUp
 );
@@ -36,12 +40,17 @@ router.post(
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((user) => {
           if (!user) {
-            return Promise.reject("Account Does Not Exist. Please Create An Account.");
+            return Promise.reject(
+              "Account Does Not Exist. Please Create An Account."
+            );
           }
         });
       })
       .normalizeEmail(),
-    body("password").trim().isLength({ min: 5 }).withMessage("Password needs to be minimum 5 characters long"),
+    body("password")
+      .trim()
+      .isLength({ min: 5 })
+      .withMessage("Password needs to be minimum 5 characters long"),
   ],
   authController.login
 );
