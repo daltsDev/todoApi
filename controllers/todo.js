@@ -32,16 +32,18 @@ exports.getTodo = async (req, res, next) => {
     const todo = await Todo.findOne({ _id: id });
 
     // Check if todo exists
-    if (!todo) {
+    if (todo) {
+      // Check if user is owner of todo
+      if (todo.userId.toString() !== userId.toString()) {
+        const error = new Error(
+          "You do not have permissions to view this todo"
+        );
+        error.statusCode = 403;
+        throw error;
+      }
+    } else {
       const error = new Error(`No todo found with ID ${id}. Please check ID.`);
       error.statusCode = 404;
-      throw error;
-    }
-
-    // Check if user is owner of todo
-    if (todo.userId.toString() !== userId.toString()) {
-      const error = new Error("You do not have permissions to view this todo");
-      error.statusCode = 403;
       throw error;
     }
 
@@ -88,7 +90,7 @@ exports.createTodo = async (req, res, next) => {
     await reqUser.save();
 
     // Send the user back a response with the newly created Todo and _id
-    res.json({ todo: todoResponse.todo, id: todoResponse._id });
+    res.json({ todo: todoResponse.todo, _id: todoResponse._id });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode === 500;
@@ -118,18 +120,23 @@ exports.editTodo = async (req, res, next) => {
     const todo = await Todo.findById({ _id: todoId });
 
     // Check if todo exists
-    if (!todo) {
-      const error = new Error(`No todo found with ID ${todoId}. Please check ID.`);
+    if (todo) {
+      // Check if user is owner of todo
+      if (todo.userId.toString() !== userId.toString()) {
+        const error = new Error(
+          "You do not have permissions to modify this todo"
+        );
+        error.statusCode = 403;
+        throw error;
+      }
+    } else {
+      const error = new Error(
+        `No todo found with ID ${todoId}. Please check ID.`
+      );
       error.statusCode = 404;
       throw error;
     }
 
-    // Check if user is owner of todo
-    if (todo.userId.toString() !== userId.toString()) {
-      const error = new Error("You do not have permissions to modify this todo");
-      error.statusCode = 403;
-      throw error;
-    }
     // Update todo
     todo.todo = todoContent;
 
@@ -168,16 +175,20 @@ exports.deleteTodo = async (req, res, next) => {
     const todo = await Todo.findById({ _id: todoId });
 
     // Check if todo exists
-    if (!todo) {
-      const error = new Error(`No todo found with ID ${todoId}. Please check ID.`);
+    if (todo) {
+      // Check if user is owner of todo
+      if (todo.userId.toString() !== userId.toString()) {
+        const error = new Error(
+          "You do not have permissions to delete this todo"
+        );
+        error.statusCode = 403;
+        throw error;
+      }
+    } else {
+      const error = new Error(
+        `No todo found with ID ${todoId}. Please check ID.`
+      );
       error.statusCode = 404;
-      throw error;
-    }
-
-    // Check if user is owner of todo
-    if (todo.userId.toString() !== userId.toString()) {
-      const error = new Error("You do not have permissions to delete this todo");
-      error.statusCode = 403;
       throw error;
     }
 

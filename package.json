@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "dev": "env-cmd -f config/.env.dev nodemon app.js",
-    "test": "env-cmd -f config/.env.test jest --watch --detectOpenHandles"
+    "test": "env-cmd -f config/.env.test jest --watchAll --runInBand --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node"
@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "dotenv": "^16.0.0",
+    "eslint": "^8.9.0",
+    "eslint-plugin-jest": "^26.1.1",
     "jest": "^27.5.1",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2"

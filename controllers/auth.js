@@ -38,7 +38,7 @@ exports.signUp = async (req, res, next) => {
     await newUser.save({ timestamps: true });
 
     // confirm user sign up.
-    res.status(201).json({ message: "Successfully Signed Up", id: newUser._id });
+    res.status(201).json({ message: "Successfully Signed Up", _id: newUser._id });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode === 500;
@@ -65,8 +65,7 @@ exports.login = async (req, res, next) => {
     // Compare password with stored password
     const userToLogin = await User.findOne({ email: email });
 
-    const isCorrectPassword = bcrypt.compare(password, userToLogin.password);
-
+    const isCorrectPassword = await bcrypt.compare(password, userToLogin.password);
     if (isCorrectPassword) {
       // Create jwt
       const token = jwt.sign({ userId: userToLogin._id }, JWT_SECRET_TOKEN, { expiresIn: "7 days" });
@@ -77,7 +76,7 @@ exports.login = async (req, res, next) => {
       // Return jwt
       res.status(200).json({ accessToken: token });
     } else {
-      const error = new Error("Incorrect Password");
+      const error = new Error("Incorrect Email or Password!");
       error.statusCode = 401;
       throw error;
     }
