@@ -36,7 +36,7 @@ exports.getTodo = async (req, res, next) => {
       // Check if user is owner of todo
       if (todo.userId.toString() !== userId.toString()) {
         const error = new Error(
-          "You do not have permissions to view this todo"
+          "You do not have permissions to perform this action"
         );
         error.statusCode = 403;
         throw error;
@@ -124,7 +124,7 @@ exports.editTodo = async (req, res, next) => {
       // Check if user is owner of todo
       if (todo.userId.toString() !== userId.toString()) {
         const error = new Error(
-          "You do not have permissions to modify this todo"
+          "You do not have permissions to perform this action"
         );
         error.statusCode = 403;
         throw error;
@@ -179,7 +179,7 @@ exports.deleteTodo = async (req, res, next) => {
       // Check if user is owner of todo
       if (todo.userId.toString() !== userId.toString()) {
         const error = new Error(
-          "You do not have permissions to delete this todo"
+          "You do not have permissions to perform this action"
         );
         error.statusCode = 403;
         throw error;
