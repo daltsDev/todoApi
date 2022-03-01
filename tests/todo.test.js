@@ -43,15 +43,20 @@ const userTwo = {
   ),
 };
 
+// Globals
+beforeEach(async () => {
+  await User.deleteMany({});
+  await Todo.deleteMany({});
+}, 10000);
+afterEach(async () => {
+  await User.deleteMany({});
+  await Todo.deleteMany({});
+}, 10000);
 /**
  * Todo Authentication Tests
  */
 
 describe("Create A User", () => {
-  beforeEach(async () => {
-    await User.deleteMany({});
-  }, 15000);
-
   test("does not exist", async () => {
     /**
      * Is it possible to create a new user account with
@@ -111,16 +116,9 @@ describe("Create A User", () => {
       "Password needs to be minimum 5 characters long"
     );
   });
-  afterAll(async () => {
-    await User.deleteMany({});
-  }, 15000);
 });
 
 describe("Login User", () => {
-  beforeEach(async () => {
-    await User.deleteMany({});
-  }, 10000);
-
   test("does exist", async () => {
     /**
      * Is it possible to login a user with an email address and password
@@ -222,10 +220,6 @@ describe("Login User", () => {
     expect(resultFromLogin._body.message).toBe("Incorrect Email or Password!");
     expect(resultFromLogin.statusCode).toBe(401);
   });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-  }, 10000);
 });
 
 /*
@@ -233,9 +227,7 @@ describe("Login User", () => {
 */
 describe("Create A Todo", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     await new User(userOne).save();
-    await Todo.deleteMany({});
   }, 10000);
 
   test("new todo", async () => {
@@ -254,11 +246,6 @@ describe("Create A Todo", () => {
     expect(
       mongoose.mongo.ObjectId.isValid(resultFromCreateTodo._body._id)
     ).toBeTruthy();
-  });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
   });
 }); // End of Describe Block
 
@@ -303,18 +290,11 @@ describe("Get A Todo", () => {
       `No todo found with ID ${todoIdDoesNotExist}. Please check ID.`
     );
   });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
-  }, 10000);
 }); // End of Describe Block
 
 describe("Get All Todos", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     await new User(userOne).save();
-    await Todo.deleteMany({});
   }, 10000);
 
   test("todos exists", async () => {
@@ -365,18 +345,11 @@ describe("Get All Todos", () => {
       expect.arrayContaining(resultFromGetAllTodos._body)
     );
   });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
-  }, 10000);
 }); // End of Describe Block
 
 describe("Modify A Todo", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     await new User(userOne).save();
-    await Todo.deleteMany({});
   }, 10000);
 
   test("exists", async () => {
@@ -417,18 +390,11 @@ describe("Modify A Todo", () => {
       `No todo found with ID ${todoIdDoesNotExist}. Please check ID.`
     );
   });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
-  }, 10000);
 }); // End of Describe Block
 
 describe("Delete A Todo", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     await new User(userOne).save();
-    await Todo.deleteMany({});
   }, 10000);
   test("exists", async () => {
     /*
@@ -463,19 +429,12 @@ describe("Delete A Todo", () => {
       `No todo found with ID ${todoIdDoesNotExist}. Please check ID.`
     );
   });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
-  }, 10000);
 }); // End of Describe Block
 
 describe("Ownership of todos", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     await new User(userOne).save();
     await new User(userTwo).save();
-    await Todo.deleteMany({});
   }, 10000);
 
   test("does not retrieve other user's todo", async () => {
@@ -540,14 +499,11 @@ describe("Ownership of todos", () => {
 
     expect(resultsFromGetUserOneTodoWithUserTwoCreds.statusCode).toBe(403);
   });
-
-  afterAll(async () => {
-    await User.deleteMany({});
-    await Todo.deleteMany({});
-  }, 10000);
 }); // End of Describe Block
 
 afterAll(async () => {
+  await User.deleteMany({});
+  await Todo.deleteMany({});
   setTimeout(() => {});
   await mongoose.disconnect();
   await dbShutDown();
