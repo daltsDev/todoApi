@@ -43,7 +43,7 @@ app.use((error, req, res, next) => {
 dbConn().then((URI) => {
   let connectionString = `${URI}todo-${process.env.ENV}`;
   mongoose
-    .connect(connectionString, { maxPoolSize: 50 })
+    .connect(connectionString)
     .then(() => {
       console.log("Connected to Database");
     })

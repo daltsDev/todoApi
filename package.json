@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node /src/todoApi/app.js",
     "dev": "env-cmd -f config/.env.dev node ./src/todoApi/app.js",
-    "test": "jest  --runInBand --forceExit --detectOpenHandles"
+    "test": "ENV=test JWT_SECRET_TOKEN=example-secrect-token jest  --maxWorkers=15 --forceExit --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node"
