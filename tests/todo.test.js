@@ -50,7 +50,7 @@ const userTwo = {
 describe("Create A User", () => {
   beforeEach(async () => {
     await User.deleteMany({});
-  });
+  }, 10000);
 
   test("does not exist", async () => {
     /**
@@ -113,13 +113,13 @@ describe("Create A User", () => {
   });
   afterAll(async () => {
     await User.deleteMany({});
-  });
+  }, 10000);
 });
 
 describe("Login User", () => {
   beforeEach(async () => {
     await User.deleteMany({});
-  });
+  }, 10000);
 
   test("does exist", async () => {
     /**
@@ -225,7 +225,7 @@ describe("Login User", () => {
 
   afterAll(async () => {
     await User.deleteMany({});
-  });
+  }, 10000);
 });
 
 /*
@@ -236,7 +236,7 @@ describe("Create A Todo", () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
-  });
+  }, 10000);
 
   test("new todo", async () => {
     /*
@@ -267,7 +267,7 @@ describe("Get A Todo", () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
-  });
+  }, 10000);
 
   test("exists", async () => {
     /*
@@ -307,7 +307,7 @@ describe("Get A Todo", () => {
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
-  });
+  }, 10000);
 }); // End of Describe Block
 
 describe("Get All Todos", () => {
@@ -315,7 +315,7 @@ describe("Get All Todos", () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
-  });
+  }, 10000);
 
   test("todos exists", async () => {
     /*
@@ -369,7 +369,7 @@ describe("Get All Todos", () => {
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
-  });
+  }, 10000);
 }); // End of Describe Block
 
 describe("Modify A Todo", () => {
@@ -377,7 +377,7 @@ describe("Modify A Todo", () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
-  });
+  }, 10000);
 
   test("exists", async () => {
     /*
@@ -421,7 +421,7 @@ describe("Modify A Todo", () => {
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
-  });
+  }, 10000);
 }); // End of Describe Block
 
 describe("Delete A Todo", () => {
@@ -429,7 +429,7 @@ describe("Delete A Todo", () => {
     await User.deleteMany({});
     await new User(userOne).save();
     await Todo.deleteMany({});
-  });
+  }, 10000);
   test("exists", async () => {
     /*
      * Is it possible to delete a single todo with a valid given ObjectId
@@ -467,7 +467,7 @@ describe("Delete A Todo", () => {
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
-  });
+  }, 10000);
 }); // End of Describe Block
 
 describe("Ownership of todos", () => {
@@ -476,7 +476,7 @@ describe("Ownership of todos", () => {
     await new User(userOne).save();
     await new User(userTwo).save();
     await Todo.deleteMany({});
-  });
+  }, 10000);
 
   test("does not retrieve other user's todo", async () => {
     /**
@@ -544,7 +544,7 @@ describe("Ownership of todos", () => {
   afterAll(async () => {
     await User.deleteMany({});
     await Todo.deleteMany({});
-  });
+  }, 10000);
 }); // End of Describe Block
 
 afterAll(async () => {
