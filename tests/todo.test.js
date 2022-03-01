@@ -47,11 +47,11 @@ const userTwo = {
 beforeEach(async () => {
   await User.deleteMany({});
   await Todo.deleteMany({});
-}, 20000);
+}, 30000);
 afterEach(async () => {
   await User.deleteMany({});
   await Todo.deleteMany({});
-}, 20000);
+}, 30000);
 /**
  * Todo Authentication Tests
  */
