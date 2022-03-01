@@ -4,8 +4,8 @@
   "description": "A REST API for a TODO Application",
   "main": "app.js",
   "scripts": {
-    "dev": "env-cmd -f config/.env.dev nodemon ./src/todoApi/app.js",
-    "test": "env-cmd -f config/.env.test jest --watchAll --runInBand --detectOpenHandles"
+    "dev": "env-cmd -f config/.env.dev node ./src/todoApi/app.js",
+    "test": "env-cmd -f config/.env.test jest  --runInBand --forceExit --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node"
@@ -23,7 +23,7 @@
     "express": "^4.17.2",
     "express-validator": "^6.14.0",
     "jsonwebtoken": "^8.5.1",
-    "mongodb-memory-server": "^8.2.0",
+    "mongodb-memory-server": "^8.4.0",
     "mongoose": "^6.2.0"
   },
   "devDependencies": {
@@ -33,5 +33,10 @@
     "jest": "^27.5.1",
     "nodemon": "^2.0.15",
     "supertest": "^6.2.2"
+  },
+  "config": {
+    "mongodbMemoryServer": {
+      "debug": "0"
+    }
   }
 }

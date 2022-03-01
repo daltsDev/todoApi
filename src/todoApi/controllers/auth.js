@@ -7,10 +7,8 @@ require("dotenv").config();
 const { JWT_SECRET_TOKEN } = process.env;
 
 exports.signUp = async (req, res, next) => {
-  // Handle validation errors
   // Validation Error Handling
   const errors = validationResult(req);
-  console.log(errors);
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed. Entered Incorrect Value");
     req.statusCode === 409
@@ -22,10 +20,9 @@ exports.signUp = async (req, res, next) => {
 
   try {
     // Get Request Body Parameters
-
     const { email, password } = req.body;
-    // encrypt password
 
+    // encrypt password
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create a new user

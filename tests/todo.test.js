@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("../src/todoApi/models/user");
 const Todo = require("../src/todoApi/models/todo");
+const { dbShutDown } = require("../src/todoApi/db/db");
 /*
  Test Users For Todo Endpoint Tests
 */
@@ -547,5 +548,8 @@ describe("Ownership of todos", () => {
 }); // End of Describe Block
 
 afterAll(async () => {
+  setTimeout(() => {});
   await mongoose.disconnect();
+  const mongod = await dbShutDown();
+  await mongod.stop({ doCleanup: true, force: true });
 });

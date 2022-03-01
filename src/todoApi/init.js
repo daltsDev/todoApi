@@ -6,7 +6,7 @@ const authRoutes = require("./routes/auth");
 const todoRoutes = require("./routes/todo");
 
 // Import DATABASE URI
-const DATABASE_URI = process.env.DATABASE_URI;
+const { dbConn, dbShutDown } = require("./db/db");
 
 // Create Application Instance
 const app = express();
@@ -40,25 +40,30 @@ app.use((error, req, res, next) => {
 });
 
 //DATABASE CONNECTION
-mongoose
-  .connect(DATABASE_URI, { maxPoolSize: 50 })
-  .then((_) => {
-    console.log("Connected to Database");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+dbConn().then((URI) => {
+  let connectionString = `${URI}todo-${process.env.ENV}`;
+  mongoose
+    .connect(connectionString, { maxPoolSize: 50 })
+    .then(() => {
+      console.log("Connected to Database");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 
 // Handle Shutting down of the application
 
 process.on("SIGTERM", async () => {
   console.log("SHUTTING ME DOWN FORCEFULLY");
   await mongoose.disconnect();
+  await dbShutDown();
   process.exit(1);
 });
 process.on("SIGINT", async () => {
   console.log("SHUTTING ME DOWN GRACEFULLY");
   await mongoose.disconnect();
+  await dbShutDown();
   process.exit(0);
 });
 
