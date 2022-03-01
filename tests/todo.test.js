@@ -48,7 +48,7 @@ beforeAll(function (done) {
   app.on("Connected To Database", function () {
     done();
   });
-});
+}, 15000);
 
 beforeEach(async () => {
   await User.deleteMany({});
