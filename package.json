@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node /src/todoApi/app.js",
     "dev": "env-cmd -f config/.env.dev node ./src/todoApi/app.js",
-    "test": "env-cmd -f config/.env.test jest  --runInBand --forceExit --detectOpenHandles"
+    "test": "jest  --runInBand --forceExit --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node"
