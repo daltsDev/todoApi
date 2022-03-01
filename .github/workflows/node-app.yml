@@ -29,3 +29,4 @@ jobs:
       - run: npm test
         env:
           ENV: test
+          JWT_SECRET_TOKEN: example-secret-key
