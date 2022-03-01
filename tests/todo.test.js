@@ -251,9 +251,7 @@ describe("Create A Todo", () => {
 
 describe("Get A Todo", () => {
   beforeEach(async () => {
-    await User.deleteMany({});
     await new User(userOne).save();
-    await Todo.deleteMany({});
   }, 10000);
 
   test("exists", async () => {
@@ -504,7 +502,6 @@ describe("Ownership of todos", () => {
 afterAll(async () => {
   await User.deleteMany({});
   await Todo.deleteMany({});
-  setTimeout(() => {});
   await mongoose.disconnect();
   await dbShutDown();
 });

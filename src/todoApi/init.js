@@ -43,7 +43,10 @@ app.use((error, req, res, next) => {
 dbConn().then((URI) => {
   let connectionString = `${URI}todo-${process.env.ENV}`;
   mongoose
-    .connect(connectionString)
+    .connect(connectionString, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
     .then(() => {
       console.log("Connected to Database");
     })
