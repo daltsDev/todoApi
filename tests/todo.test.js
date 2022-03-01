@@ -50,7 +50,7 @@ const userTwo = {
 describe("Create A User", () => {
   beforeEach(async () => {
     await User.deleteMany({});
-  }, 10000);
+  }, 15000);
 
   test("does not exist", async () => {
     /**
@@ -113,7 +113,7 @@ describe("Create A User", () => {
   });
   afterAll(async () => {
     await User.deleteMany({});
-  }, 10000);
+  }, 15000);
 });
 
 describe("Login User", () => {
