@@ -49,6 +49,7 @@ dbConn().then((URI) => {
     })
     .then(() => {
       console.log("Connected to Database");
+      app.emit("Connected To Database");
     })
     .catch((err) => {
       console.log(err);

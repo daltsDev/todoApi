@@ -44,6 +44,12 @@ const userTwo = {
 };
 
 // Globals
+beforeAll(function (done) {
+  app.on("Connected To Database", function () {
+    done();
+  });
+});
+
 beforeEach(async () => {
   await User.deleteMany({});
   await Todo.deleteMany({});
