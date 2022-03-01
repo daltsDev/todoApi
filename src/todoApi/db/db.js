@@ -23,7 +23,7 @@ const dbConn = async () => {
 
 const dbShutDown = async () => {
   const mongod = await dbStartUp();
-  return mongod;
+  await mongod.stop({ doCleanup: true, force: false });
 };
 
 module.exports = { dbConn, dbShutDown };

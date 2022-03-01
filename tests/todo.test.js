@@ -550,6 +550,5 @@ describe("Ownership of todos", () => {
 afterAll(async () => {
   setTimeout(() => {});
   await mongoose.disconnect();
-  const mongod = await dbShutDown();
-  await mongod.stop({ doCleanup: true, force: true });
+  await dbShutDown();
 });
