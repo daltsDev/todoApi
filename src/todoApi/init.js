@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const todoRoutes = require("./routes/todo");
 
-// Import DATABASE URI
+// Import Database Handlers
 const { dbConn, dbShutDown } = require("./db/db");
 
 // Create Application Instance
@@ -48,7 +48,6 @@ dbConn().then((URI) => {
       useUnifiedTopology: true,
     })
     .then(() => {
-      console.log("Connected to Database");
       app.emit("Connected To Database");
     })
     .catch((err) => {
@@ -59,13 +58,13 @@ dbConn().then((URI) => {
 // Handle Shutting down of the application
 
 process.on("SIGTERM", async () => {
-  console.log("SHUTTING ME DOWN FORCEFULLY");
+  app.emit("shutting me down forcefully");
   await mongoose.disconnect();
   await dbShutDown();
   process.exit(1);
 });
 process.on("SIGINT", async () => {
-  console.log("SHUTTING ME DOWN GRACEFULLY");
+  app.emit("shutting me down gracefully");
   await mongoose.disconnect();
   await dbShutDown();
   process.exit(0);
