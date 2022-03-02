@@ -20,7 +20,7 @@ The following will start the application on local port 8080 with a random secret
 
 ```
 npm install . // If not already installed
-npm start
+JWT_SECRET_TOKEN=secret-token npm start
 ```
 
 ---
