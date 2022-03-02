@@ -1,7 +1,5 @@
 ## TODO App
 
----
-
 This is a REST API for a TODO Application. It supports creating, reading, updating and deleting TODO items. It provides user authentication with JSON Web Tokens. Written in Node.js & Express.
 
 ### Installation
@@ -25,6 +23,8 @@ npm install . // If not already installed
 npm start
 ```
 
+---
+
 ### Run in Docker
 
 - Install Docker
@@ -41,6 +41,8 @@ docker build -t todo-api .
 docker run -d -p 8080:8080 --env JWT_SECRET_TOKEN=secret-token --name todo-api todo-api
 ```
 
+---
+
 ### Run the tests
 
 The tests run via GitHub Actions.
@@ -51,6 +53,8 @@ To run the tests locally
 npm install . // If not already installed
 npm test
 ```
+
+---
 
 ### Interact with the API using `cURL`
 
@@ -151,6 +155,8 @@ curl --request PATCH 'http://127.0.0.1:8080/todo/<object_id>' \
 curl --request DELETE 'http://127.0.0.1:8080/todo/<object_id>' \
 --header 'Authorization: Bearer $accessToken'
 ```
+
+---
 
 ### Interact with the API using `Postman`
 
