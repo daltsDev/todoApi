@@ -31,7 +31,7 @@ app.use("/todo", todoRoutes);
 
 // Global APP ERROR HANDLER
 
-app.use((error, req, res, next) => {
+app.use((error, req, res) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
