@@ -61,7 +61,7 @@ npm test
 You will first need to create an account with an email and password:
 
 ```
-curl --location --request POST 'http://127.0.0.1:8080/auth/signup' \
+curl --request POST 'http://127.0.0.1:8080/auth/signup' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "email" : "example_email@example.com",
@@ -81,7 +81,7 @@ You should receive a sign up success message:
 You will then need to login with those credentials:
 
 ```
-curl --location --request POST 'http://127.0.0.1:8080/auth/login' \
+curl --request POST 'http://127.0.0.1:8080/auth/login' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "email" : "example_email@example.com",
@@ -135,7 +135,7 @@ curl --request POST 'http://127.0.0.1:8080/todo/<object_id>' \
 ###### Get all Todos
 
 ```
-curl --location --request GET 'http://127.0.0.1:8080/todo' \
+curl --request GET 'http://127.0.0.1:8080/todo' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer $accessToken'
 ```
