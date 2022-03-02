@@ -4,9 +4,9 @@
   "description": "A REST API for a TODO Application",
   "main": "app.js",
   "scripts": {
-    "start": "JWT_SECRET_TOKEN=example-secret-token node ./src/todoApi/app.js",
-    "dev": "ENV=dev JWT_SECRET_TOKEN=example-secret-token node ./src/todoApi/app.js",
-    "test": "ENV=test JWT_SECRET_TOKEN=example-secret-token jest  --maxWorkers=15 --forceExit --detectOpenHandles"
+    "start": "JWT_SECRET_TOKEN=secret-token node ./src/todoApi/app.js",
+    "dev": "ENV=dev JWT_SECRET_TOKEN=secret-token node ./src/todoApi/app.js",
+    "test": "ENV=test JWT_SECRET_TOKEN=secret-token jest  --maxWorkers=15 --forceExit --detectOpenHandles"
   },
   "jest": {
     "testEnvironment": "node"
