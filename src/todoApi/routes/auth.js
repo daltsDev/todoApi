@@ -6,7 +6,7 @@ const authController = require("../controllers/auth");
 const isAuth = require("../middleware/isAuth");
 const User = require("../models/user");
 
-router.get("/guarded", isAuth, authController.user);
+router.get("/guarded", isAuth, authController.guarded);
 
 router.post(
   "/signup",

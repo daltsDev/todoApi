@@ -7,7 +7,9 @@ require("dotenv").config();
 const { JWT_SECRET_TOKEN } = process.env;
 
 exports.signUp = async (req, res, next) => {
-  // Validation Error Handling
+  /**
+   * Create a user with email & password.
+   */
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed. Entered Incorrect Value");
@@ -17,25 +19,15 @@ exports.signUp = async (req, res, next) => {
     error.data = errors.array();
     return next(error);
   }
-
   try {
-    // Get Request Body Parameters
     const { email, password } = req.body;
-
-    // encrypt password
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Create a new user
     const newUser = new User({
       email: email,
       password: hashedPassword,
       todos: [],
     });
-
-    // save user to database
     await newUser.save({ timestamps: true });
-
-    // confirm user sign up.
     res
       .status(201)
       .json({ message: "Successfully Signed Up", _id: newUser._id });
@@ -48,37 +40,30 @@ exports.signUp = async (req, res, next) => {
 };
 
 exports.login = async (req, res, next) => {
-  // Handle validation errors
+  /**
+   * Login User with email & password.
+   * Return JWT
+   */
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed. Entered Incorrect Value");
     error.statusCode = 422;
     error.data = errors.array();
     return next(error);
   }
-
   try {
-    // Gather request Parameters
     const { email, password } = req.body;
-
-    // Compare password with stored password
     const userToLogin = await User.findOne({ email: email });
-
     const isCorrectPassword = await bcrypt.compare(
       password,
       userToLogin.password
     );
     if (isCorrectPassword) {
-      // Create jwt
       const token = jwt.sign({ userId: userToLogin._id }, JWT_SECRET_TOKEN, {
         expiresIn: "7 days",
       });
-
       userToLogin.token = token;
       await userToLogin.save();
-
-      // Return jwt
       res.status(200).json({ accessToken: token });
     } else {
       const error = new Error("Incorrect Email or Password!");
@@ -93,17 +78,16 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.user = async (req, res, next) => {
+exports.guarded = async (req, res, next) => {
+  /**
+   * Return current logged in user's email.
+   */
   const { userId } = req;
-
   const user = await User.findOne({ userId });
-
-  // Check if user exists
   if (!user) {
     const error = new Error(`Could not find user with that email`);
     error.statusCode = 404;
     throw error;
   }
-
   res.status(200).json({ loggedInAs: user.email });
 };
