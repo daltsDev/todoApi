@@ -3,7 +3,7 @@ const { MongoMemoryServer } = require("mongodb-memory-server");
  * This application uses MongoDB Memory Sever.
  * A pitfall of this application is the data is lost once the server is restarted
  * In the future we should consider utilizing an on-disk Database
- * See https://github.com/daltsDev/todoApi/issues/1
+ * See https://github.com/stephen-dalton/todoApi/issues/1
  */
 
 const dbStartUp = async () => {
