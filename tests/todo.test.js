@@ -1,6 +1,3 @@
-/*
- Tests for Node Todo API.
-*/
 const request = require("supertest");
 const app = require("../src/todoApi/init");
 const mongoose = require("mongoose");
@@ -8,9 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../src/todoApi/models/user");
 const Todo = require("../src/todoApi/models/todo");
 const { dbShutDown } = require("../src/todoApi/db/db");
-/*
- Test Users For Todo Endpoint Tests
-*/
+
 const userOneId = mongoose.Types.ObjectId();
 const userOne = {
   _id: userOneId,
@@ -43,7 +38,10 @@ const userTwo = {
   ),
 };
 
-// Globals
+/**
+ * Global Test Configuration
+ */
+
 beforeAll(function (done) {
   app.on("Connected To Database", function () {
     done();
@@ -58,8 +56,16 @@ afterEach(async () => {
   await User.deleteMany({});
   await Todo.deleteMany({});
 }, 30000);
+
+afterAll(async () => {
+  await User.deleteMany({});
+  await Todo.deleteMany({});
+  await mongoose.disconnect();
+  await dbShutDown();
+});
+
 /**
- * Todo Authentication Tests
+ * Supertest and Jest enabled API Endpoint Tests
  */
 
 describe("Create A User", () => {
@@ -253,20 +259,18 @@ describe("Get All Todos", () => {
      * It is possible to retrieve all todos for a user
      */
     expect.assertions(1);
-    const firstTodo = await request(app)
+    await request(app)
       .post("/todo")
       .set("Authorization", `Bearer ${userOne.token}`)
       .send({
         todo: "Create First Todo",
       });
-    const secondTodo = await request(app)
+    await request(app)
       .post("/todo")
       .set("Authorization", `Bearer ${userOne.token}`)
       .send({
         todo: "Create Second Todo",
       });
-    const firstPostId = firstTodo._body._id;
-    const secondPostId = secondTodo._body._id;
     const resultFromGetAllTodos = await request(app)
       .get("/todo")
       .set("Authorization", `Bearer ${userOne.token}`);
@@ -277,12 +281,14 @@ describe("Get All Todos", () => {
     /*
      * An empty array is returned for a user if no todo items exist
      */
-    expect.assertions(1);
+    expect.assertions(2);
     const expectedData = [];
     const resultFromGetAllTodos = await request(app)
       .get("/todo")
       .set("Authorization", `Bearer ${userOne.token}`);
+    const returnedData = resultFromGetAllTodos._body;
     expect(resultFromGetAllTodos.statusCode).toBe(200);
+    expect(expectedData).toEqual(expect.arrayContaining(returnedData));
   });
 }); // End of Describe Block
 
@@ -433,10 +439,3 @@ describe("Ownership of todos", () => {
     expect(resultsFromGetUserOneTodoWithUserTwoCreds.statusCode).toBe(403);
   });
 }); // End of Describe Block
-
-afterAll(async () => {
-  await User.deleteMany({});
-  await Todo.deleteMany({});
-  await mongoose.disconnect();
-  await dbShutDown();
-});
