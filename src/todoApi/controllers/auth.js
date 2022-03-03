@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 const User = require("../models/user");
-const bcrypt = require("bcryptjs");
+const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -34,7 +34,7 @@ exports.signUp = async (req, res, next) => {
   }
   try {
     const { email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await argon2.hash(password);
     const newUser = new User({
       email: email,
       password: hashedPassword,
@@ -67,10 +67,12 @@ exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const userToLogin = await User.findOne({ email: email });
-    const isCorrectPassword = await bcrypt.compare(
-      password,
-      userToLogin.password
+
+    const isCorrectPassword = await argon2.verify(
+      userToLogin.password,
+      password
     );
+
     if (isCorrectPassword) {
       const token = jwt.sign({ userId: userToLogin._id }, JWT_SECRET_TOKEN, {
         expiresIn: "7 days",
