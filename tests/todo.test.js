@@ -39,6 +39,11 @@ const userTwo = {
 };
 
 /**
+ * We used the describe function and resultant test names
+ * inspired by https://github.com/spotify/should-up
+ */
+
+/**
  * Global Test Configuration
  */
 
