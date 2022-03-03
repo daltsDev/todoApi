@@ -4,6 +4,19 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+/**
+ * The JWT_SECRET_TOKEN is used to create a user's access session token.
+ *
+ * If the token leaks then a threat/bad actor could impersonate any user.
+ *
+ * JSON Web Tokens were used to allow user authentication that only the server
+ * can decrypt.
+ *
+ * We use the JWT_SECRET_TOKEN environment variable to prevent a user running
+ * this application in production and remove the possibility that
+ * a secret key was not configured.
+ */
+
 const { JWT_SECRET_TOKEN } = process.env;
 
 exports.signUp = async (req, res, next) => {

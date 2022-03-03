@@ -1,12 +1,21 @@
 const { MongoMemoryServer } = require("mongodb-memory-server");
+/**
+ * This application uses MongoDB Memory Sever.
+ * A pitfall of this application is the data is lost once the server is restarted
+ * In the future we should consider utilizing an on-disk Database
+ * See https://github.com/daltsDev/todoApi/issues/1
+ */
 
 const dbStartUp = async () => {
+  /**
+   * Create the Database Instance on Localhost, and PORT 27017.
+   * MongoDB v5.0.2
+   */
   const mongod = await MongoMemoryServer.create({
     instance: {
-      port: 27017, // by default choose any free port
-      ip: "127.0.0.1", // by default '127.0.0.1', for binding to all IP addresses set it to `::,0.0.0.0`,
-      //dbPath?: string, // by default create in temp directory
-      storageEngine: "ephemeralForTest", // by default `ephemeralForTest`, available engines: [ 'ephemeralForTest', 'wiredTiger' ]
+      port: 27017,
+      ip: "127.0.0.1",
+      storageEngine: "ephemeralForTest",
     },
     binary: {
       version: "5.0.2",
