@@ -2,14 +2,19 @@ const { validationResult } = require("express-validator");
 const Todo = require("../models/todo");
 const User = require("../models/user");
 
-const PROJECTION = { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 };
-
 exports.getTodos = async (req, res, next) => {
   /**
    * Return all Todos
    */
   const userId = req.userId;
-  const todoList = await Todo.find({ userId: userId }, PROJECTION);
+  let isVerbose = req.query.verbose;
+  isVerbose = isVerbose == "true";
+  const todoList = await Todo.find(
+    { userId: userId },
+    isVerbose
+      ? { _id: 1, createdAt: 1, updatedAt: 1, todo: 1 }
+      : { userId: 0, createdAt: 0, updatedAt: 0, __v: 0 }
+  );
   res.send(todoList);
 };
 
@@ -27,6 +32,8 @@ exports.getTodo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.userId;
+    let isVerbose = req.query.verbose;
+    isVerbose = isVerbose == "true";
     const todo = await Todo.findOne({ _id: id });
     if (todo) {
       if (todo.userId.toString() !== userId.toString()) {
@@ -41,7 +48,14 @@ exports.getTodo = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ _id: todo._id, todo: todo.todo });
+    isVerbose
+      ? res.json({
+          _id: todo._id,
+          todo: todo.todo,
+          createdAt: todo.createdAt,
+          updatedAt: todo.updatedAt,
+        })
+      : res.json({ todo: todo.todo, _id: todo._id });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode === 500;
@@ -64,15 +78,25 @@ exports.createTodo = async (req, res, next) => {
   try {
     const userId = req.userId;
     const todoContent = req.body.todo;
+    let isVerbose = req.query.verbose;
+    isVerbose = isVerbose == "true";
     const todo = new Todo({
       todo: todoContent,
       userId: userId,
     });
     const todoResponse = await todo.save();
+    console.log(isVerbose);
     const reqUser = await User.findById(todo.userId);
     reqUser.todos.push(todoResponse._id);
     await reqUser.save();
-    res.json({ todo: todoResponse.todo, _id: todoResponse._id });
+    isVerbose
+      ? res.json({
+          _id: todoResponse._id,
+          todo: todoResponse.todo,
+          createdAt: todoResponse.createdAt,
+          updatedAt: todoResponse.updatedAt,
+        })
+      : res.json({ todo: todoResponse.todo, _id: todoResponse._id });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode === 500;
@@ -96,6 +120,8 @@ exports.editTodo = async (req, res, next) => {
   try {
     const todoId = req.params.id;
     const userId = req.userId;
+    let isVerbose = req.query.verbose;
+    isVerbose = isVerbose == "true";
     const todoContent = req.body.todo;
     const todo = await Todo.findById({ _id: todoId });
     if (todo) {
@@ -115,7 +141,14 @@ exports.editTodo = async (req, res, next) => {
     }
     todo.todo = todoContent;
     await todo.save({ timestamps: true });
-    res.status(200).json({ _id: todo._id, todo: todo.todo });
+    isVerbose
+      ? res.json({
+          _id: todo._id,
+          todo: todo.todo,
+          createdAt: todo.createdAt,
+          updatedAt: todo.updatedAt,
+        })
+      : res.json({ todo: todo.todo, _id: todo._id });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode === 500;
