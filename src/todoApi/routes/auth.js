@@ -6,8 +6,19 @@ const authController = require("../controllers/auth");
 const isAuth = require("../middleware/isAuth");
 const User = require("../models/user");
 
+/**
+ * HTTP GET Request
+ * Endpoint Path /guarded
+ * Returns Currently Logged in User
+ */
 router.get("/guarded", isAuth, authController.guarded);
 
+/**
+ * HTTP POST Request
+ * Endpoint Path /signup
+ * Creates a user account with supplied
+ * email address and password.
+ */
 router.post(
   "/signup",
   [
@@ -31,6 +42,12 @@ router.post(
   authController.signUp
 );
 
+/**
+ * HTTP POST Request
+ * Endpoint Path /login
+ * Logins user and returns
+ * JWT for future usage.
+ */
 router.post(
   "/login",
   [

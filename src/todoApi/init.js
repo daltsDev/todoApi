@@ -5,16 +5,14 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const todoRoutes = require("./routes/todo");
 
-// Import Database Handlers
 const { dbConn, dbShutDown } = require("./db/db");
 
-// Create Application Instance
 const app = express();
-
-// Enable Express App to parse incoming JSON
 app.use(express.json());
 
-// Adding Config for CORS
+/**
+ * Add Express Configuration for CORS Support.
+ */
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -25,12 +23,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// ROUTES
+/**
+ * Implement Express Routing
+ */
 app.use("/auth", authRoutes);
 app.use("/todo", todoRoutes);
 
-// Global APP ERROR HANDLER
-
+/**
+ * Initialization of Global Error Handler
+ */
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
@@ -39,7 +40,9 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
-//DATABASE CONNECTION
+/**
+ * Instantiation of Database Connection
+ */
 dbConn().then((URI) => {
   let connectionString = `${URI}todo-${process.env.ENV}`;
   mongoose
@@ -55,8 +58,9 @@ dbConn().then((URI) => {
     });
 });
 
-// Handle Shutting down of the application
-
+/**
+ * Global Shutdown Handlers
+ */
 process.on("SIGTERM", async () => {
   app.emit("shutting me down forcefully");
   await mongoose.disconnect();
@@ -69,5 +73,11 @@ process.on("SIGINT", async () => {
   await dbShutDown();
   process.exit(0);
 });
+
+/**
+ * Export the Express App to
+ * be able to utilise Supertest
+ * testing suit.
+ */
 
 module.exports = app;

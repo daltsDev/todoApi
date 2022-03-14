@@ -1,3 +1,9 @@
+/**
+ * Import Express App &
+ * enabling Port listening. This has been configured
+ * to enable the usage of Supertest test suite.
+ */
+
 const app = require("./init");
 require("dotenv").config();
 
