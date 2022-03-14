@@ -124,7 +124,9 @@ curl --request POST 'http://127.0.0.1:8080/todo' \
 --data-raw '{ "todo": "Example First Todo" }'
 ```
 
-###### Get a Todo | With todo Id from creating a todo
+###### Get a Todo
+
+Include Todo Id from creating a todo
 
 ```
 curl --request POST 'http://127.0.0.1:8080/todo/<object_id>' \
@@ -140,7 +142,9 @@ curl --request GET 'http://127.0.0.1:8080/todo' \
 --header 'Authorization: Bearer $accessToken'
 ```
 
-###### Modify a Todo | With todo Id from creating a todo
+###### Modify a Todo
+
+Include Todo Id from creating a todo
 
 ```
 curl --request PATCH 'http://127.0.0.1:8080/todo/<object_id>' \
@@ -149,12 +153,23 @@ curl --request PATCH 'http://127.0.0.1:8080/todo/<object_id>' \
 --data-raw '{ "todo": "Example Modifying First Todo"}'
 ```
 
-###### Delete a Todo | With todo Id from creating a todo
+###### Delete a Todo
+
+Include Todo Id from creating a todo
 
 ```
 curl --request DELETE 'http://127.0.0.1:8080/todo/<object_id>' \
 --header 'Authorization: Bearer $accessToken'
 ```
+
+###### Optional Query Parameter
+
+You can pass an optional query parameter `?verbose=true || false` to the following actions to return a verbose JSON Response:
+
+1. [Creating a Todo](#creating-a-todo)
+2. [Get a Todo](#get-a-todo)
+3. [Get all Todos](#get-all-todos)
+4. [Modify a Todo](#modify-a-todo)
 
 ---
 
