@@ -45,7 +45,7 @@ router.post(
 /**
  * HTTP POST Request
  * Endpoint Path /login
- * Logins user and returns
+ * Logs in user and returns
  * JWT for future usage.
  */
 router.post(
